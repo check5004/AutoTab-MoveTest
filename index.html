@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タブナビゲーションデモ</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .tab-content > .tab-pane {
+            display: none;
+        }
+        .tab-content > .active {
+            display: block;
+        }
+        .nav-tabs .nav-link {
+            cursor: pointer;
+        }
+        input:disabled {
+            background-color: #f8f9fa;
+        }
+        .input-status {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>タブナビゲーションデモ</h1>
+
+        <!-- 共通部品のDDLセクション -->
+        <div class="mb-4 card p-3">
+            <h3>共通部品</h3>
+            <div class="form-group">
+                <label for="patternSelect" class="form-label">パターン選択：</label>
+                <select class="form-select" id="patternSelect">
+                    <option value="1">パターン1 (各タブで1つのフィールドがランダムに無効)</option>
+                    <option value="2">パターン2 (各タブで1-3個のフィールドがランダムに無効)</option>
+                    <option value="3">パターン3 (固定位置のフィールドが無効)</option>
+                </select>
+                <div class="mt-2 text-muted">
+                    <small>※ パターンを変更すると、入力フィールドの有効/無効状態がリセットされます</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- インストラクション -->
+        <div class="alert alert-info mb-4">
+            <h5>キーボードナビゲーション</h5>
+            <ul>
+                <li><strong>Tab</strong>: 次の入力フィールドへ移動（タブの境界を超えることも可能）</li>
+                <li><strong>Shift + Tab</strong>: 前の入力フィールドへ移動</li>
+                <li><strong>Enter</strong>: 次の入力フィールドへ移動</li>
+                <li><strong>Shift + Enter</strong>: 前の入力フィールドへ移動</li>
+            </ul>
+        </div>
+
+        <!-- タブセクション -->
+        <div class="mb-4 card">
+            <div class="card-header">
+                <h3 class="mb-0">タブセクション</h3>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="myTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab" aria-controls="tab1" aria-selected="true">タブ1</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab" aria-controls="tab2" aria-selected="false">タブ2</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab" aria-controls="tab3" aria-selected="false">タブ3</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="myTabsContent">
+                    <!-- タブ1の内容 -->
+                    <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+                        <div class="p-3 border">
+                            <h4>タブ1のコンテンツ</h4>
+                            <div class="form-group mb-3">
+                                <label for="tab1-input1" class="form-label">入力項目1：</label>
+                                <input type="text" class="form-control tab-input" id="tab1-input1" tabindex="1">
+                                <div class="input-status" id="tab1-input1-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab1-input2" class="form-label">入力項目2：</label>
+                                <input type="text" class="form-control tab-input" id="tab1-input2" tabindex="2">
+                                <div class="input-status" id="tab1-input2-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab1-input3" class="form-label">入力項目3：</label>
+                                <input type="text" class="form-control tab-input" id="tab1-input3" tabindex="3">
+                                <div class="input-status" id="tab1-input3-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab1-input4" class="form-label">入力項目4：</label>
+                                <input type="text" class="form-control tab-input" id="tab1-input4" tabindex="4">
+                                <div class="input-status" id="tab1-input4-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab1-input5" class="form-label">入力項目5：</label>
+                                <input type="text" class="form-control tab-input" id="tab1-input5" tabindex="5">
+                                <div class="input-status" id="tab1-input5-status"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- タブ2の内容 -->
+                    <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+                        <div class="p-3 border">
+                            <h4>タブ2のコンテンツ</h4>
+                            <div class="form-group mb-3">
+                                <label for="tab2-input1" class="form-label">入力項目1：</label>
+                                <input type="text" class="form-control tab-input" id="tab2-input1" tabindex="6">
+                                <div class="input-status" id="tab2-input1-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab2-input2" class="form-label">入力項目2：</label>
+                                <input type="text" class="form-control tab-input" id="tab2-input2" tabindex="7">
+                                <div class="input-status" id="tab2-input2-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab2-input3" class="form-label">入力項目3：</label>
+                                <input type="text" class="form-control tab-input" id="tab2-input3" tabindex="8">
+                                <div class="input-status" id="tab2-input3-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab2-input4" class="form-label">入力項目4：</label>
+                                <input type="text" class="form-control tab-input" id="tab2-input4" tabindex="9">
+                                <div class="input-status" id="tab2-input4-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab2-input5" class="form-label">入力項目5：</label>
+                                <input type="text" class="form-control tab-input" id="tab2-input5" tabindex="10">
+                                <div class="input-status" id="tab2-input5-status"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- タブ3の内容 -->
+                    <div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="tab3-tab">
+                        <div class="p-3 border">
+                            <h4>タブ3のコンテンツ</h4>
+                            <div class="form-group mb-3">
+                                <label for="tab3-input1" class="form-label">入力項目1：</label>
+                                <input type="text" class="form-control tab-input" id="tab3-input1" tabindex="11">
+                                <div class="input-status" id="tab3-input1-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab3-input2" class="form-label">入力項目2：</label>
+                                <input type="text" class="form-control tab-input" id="tab3-input2" tabindex="12">
+                                <div class="input-status" id="tab3-input2-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab3-input3" class="form-label">入力項目3：</label>
+                                <input type="text" class="form-control tab-input" id="tab3-input3" tabindex="13">
+                                <div class="input-status" id="tab3-input3-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab3-input4" class="form-label">入力項目4：</label>
+                                <input type="text" class="form-control tab-input" id="tab3-input4" tabindex="14">
+                                <div class="input-status" id="tab3-input4-status"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="tab3-input5" class="form-label">入力項目5：</label>
+                                <input type="text" class="form-control tab-input" id="tab3-input5" tabindex="15">
+                                <div class="input-status" id="tab3-input5-status"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ボタンセクション -->
+        <div class="mb-4">
+            <button type="button" class="btn btn-primary" id="submitBtn">送信</button>
+            <button type="button" class="btn btn-secondary" id="resetBtn">リセット</button>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- カスタムJS -->
+    <script src="script.js"></script>
+</body>
+</html>
