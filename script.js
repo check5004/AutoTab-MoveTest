@@ -1,12 +1,18 @@
 $(document).ready(function() {
-    // Bootstrapタブの初期化 - 修正：buttonタグを使用するように変更
+    /**
+     * Bootstrapタブの初期化 - 修正：buttonタグを使用するように変更
+     */
     var tabEl = document.querySelector('button[data-bs-toggle="tab"]');
     var tab = new bootstrap.Tab(tabEl);
 
-    // 全ての入力要素を取得
+    /**
+     * 全ての入力要素を取得
+     */
     const allInputs = $('.tab-input');
 
-    // パターン選択が変更されたときの処理
+    /**
+     * パターン選択が変更されたときの処理
+     */
     $('#patternSelect').on('change', function() {
         const pattern = $(this).val();
         applyPattern(pattern);
@@ -15,7 +21,10 @@ $(document).ready(function() {
     // 初期状態でパターン1を適用
     applyPattern('1');
 
-    // パターンに基づいて入力フィールドの有効/無効を設定する関数
+    /**
+     * パターンに基づいて入力フィールドの有効/無効を設定する関数
+     * @param {string} pattern - 適用するパターンの識別子
+     */
     function applyPattern(pattern) {
         // すべての入力フィールドをリセットし、ステータス表示をクリア
         allInputs.prop('disabled', false);
@@ -58,7 +67,11 @@ $(document).ready(function() {
         }
     }
 
-    // 指定されたタブ内でランダムに入力フィールドを無効化する関数
+    /**
+     * 指定されたタブ内でランダムに入力フィールドを無効化する関数
+     * @param {string} tabId - 対象となるタブのID
+     * @param {number} count - 無効化する入力フィールドの数
+     */
     function disableRandomInputsInTab(tabId, count) {
         const inputs = $(`#${tabId} .tab-input`);
         const indices = [];
@@ -82,7 +95,11 @@ $(document).ready(function() {
         }
     }
 
-    // 入力フィールドのステータス表示を更新する関数
+    /**
+     * 入力フィールドのステータス表示を更新する関数
+     * @param {string} inputId - 対象となる入力フィールドのID
+     * @param {boolean} isDisabled - 無効状態かどうか
+     */
     function updateInputStatus(inputId, isDisabled) {
         const statusElement = $(`#${inputId}-status`);
         if (isDisabled) {
@@ -92,7 +109,9 @@ $(document).ready(function() {
         }
     }
 
-    // キーダウンイベントを監視して、Tab/Enterキーの動作をカスタマイズ
+    /**
+     * キーダウンイベントを監視して、Tab/Enterキーの動作をカスタマイズ
+     */
     $(document).on('keydown', '.tab-input', function(e) {
         const inputs = $('.tab-input').not(':disabled');
         const currentIndex = inputs.index(this);
@@ -120,58 +139,11 @@ $(document).ready(function() {
                 }
             }
         }
-
-        // Tabキーが押された場合（タブ間の移動を処理）
-        if (e.key === 'Tab') {
-            // tabpaneが取得できない場合のエラー防止
-            const tabPane = $(this).closest('.tab-pane');
-            if (!tabPane.length) return;
-
-            const currentTabId = tabPane.attr('id');
-            const nextEnabledInput = e.shiftKey ?
-                inputs.eq(currentIndex - 1) :
-                inputs.eq(currentIndex + 1);
-
-            // 次の有効な入力がない場合（タブの最初または最後）
-            if (nextEnabledInput.length === 0) {
-                e.preventDefault();
-
-                // 現在のタブと次/前のタブを特定
-                const tabList = ['tab1', 'tab2', 'tab3'];
-                const currentTabIndex = tabList.indexOf(currentTabId);
-                let nextTabIndex;
-
-                if (e.shiftKey) {
-                    // 前のタブに移動
-                    nextTabIndex = currentTabIndex > 0 ? currentTabIndex - 1 : tabList.length - 1;
-                } else {
-                    // 次のタブに移動
-                    nextTabIndex = currentTabIndex < tabList.length - 1 ? currentTabIndex + 1 : 0;
-                }
-
-                // 次/前のタブをアクティブにする
-                const nextTabElement = document.querySelector(`#${tabList[nextTabIndex]}-tab`);
-                if (nextTabElement) {
-                    const nextTab = new bootstrap.Tab(nextTabElement);
-                    nextTab.show();
-
-                    // 次のタブの最初/最後の有効な入力にフォーカスを移動
-                    setTimeout(() => {
-                        const tabInputs = $(`#${tabList[nextTabIndex]} .tab-input`).not(':disabled');
-                        if (tabInputs.length > 0) {
-                            if (e.shiftKey) {
-                                tabInputs.last().focus();
-                            } else {
-                                tabInputs.first().focus();
-                            }
-                        }
-                    }, 10);
-                }
-            }
-        }
     });
 
-    // タブが表示されたときのイベント処理
+    /**
+     * タブが表示されたときのイベント処理
+     */
     $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         // 表示されたタブの最初の有効な入力フィールドにフォーカス
         const tabId = $(e.target).data('bs-target');
@@ -183,7 +155,9 @@ $(document).ready(function() {
         }
     });
 
-    // リセットボタンのイベント処理
+    /**
+     * リセットボタンのイベント処理
+     */
     $('#resetBtn').on('click', function() {
         // すべての入力をクリア
         allInputs.val('');
@@ -200,7 +174,9 @@ $(document).ready(function() {
         applyPattern(pattern);
     });
 
-    // 送信ボタンのイベント処理
+    /**
+     * 送信ボタンのイベント処理
+     */
     $('#submitBtn').on('click', function() {
         // 入力値の収集
         const values = {};
