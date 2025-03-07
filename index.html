@@ -9,11 +9,23 @@
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
+        /* タブコンテンツの表示スタイルをカスタマイズ - display:noneを使わずvisibility/opacityベースに変更 */
         .tab-content > .tab-pane {
-            display: none;
+            /* display: none; の代わりに */
+            visibility: hidden;
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            pointer-events: none;
+            z-index: -1;
         }
         .tab-content > .active {
-            display: block;
+            /* display: block; の代わりに */
+            visibility: visible;
+            position: relative;
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 1;
         }
         .nav-tabs .nav-link {
             cursor: pointer;
@@ -25,6 +37,15 @@
             font-size: 0.8rem;
             margin-top: 5px;
             color: #6c757d;
+        }
+        /* タブコンテンツとボタンセクションを分離 */
+        .tab-navigation-container {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 1rem;
+        }
+        .button-section {
+            margin-top: 2rem;
         }
     </style>
 </head>
@@ -59,117 +80,120 @@
             </ul>
         </div>
 
-        <!-- タブセクション -->
-        <div class="mb-4 card">
-            <div class="card-header">
-                <h3 class="mb-0">タブセクション</h3>
-            </div>
-            <div class="card-body">
-                <ul class="nav nav-tabs" id="myTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab" aria-controls="tab1" aria-selected="true">タブ1</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab" aria-controls="tab2" aria-selected="false">タブ2</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab" aria-controls="tab3" aria-selected="false">タブ3</button>
-                    </li>
-                </ul>
+        <!-- タブナビゲーションコンテナ - 区切りを追加 -->
+        <div class="tab-navigation-container">
+            <!-- タブセクション -->
+            <div class="mb-4 card">
+                <div class="card-header">
+                    <h3 class="mb-0">タブセクション</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="myTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab" aria-controls="tab1" aria-selected="true">タブ1</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab" aria-controls="tab2" aria-selected="false">タブ2</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab" aria-controls="tab3" aria-selected="false">タブ3</button>
+                        </li>
+                    </ul>
 
-                <div class="tab-content" id="myTabsContent">
-                    <!-- タブ1の内容 -->
-                    <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
-                        <div class="p-3 border">
-                            <h4>タブ1のコンテンツ</h4>
-                            <div class="form-group mb-3">
-                                <label for="tab1-input1" class="form-label">入力項目1：</label>
-                                <input type="text" class="form-control tab-input" id="tab1-input1" tabindex="1">
-                                <div class="input-status" id="tab1-input1-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab1-input2" class="form-label">入力項目2：</label>
-                                <input type="text" class="form-control tab-input" id="tab1-input2" tabindex="2">
-                                <div class="input-status" id="tab1-input2-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab1-input3" class="form-label">入力項目3：</label>
-                                <input type="text" class="form-control tab-input" id="tab1-input3" tabindex="3">
-                                <div class="input-status" id="tab1-input3-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab1-input4" class="form-label">入力項目4：</label>
-                                <input type="text" class="form-control tab-input" id="tab1-input4" tabindex="4">
-                                <div class="input-status" id="tab1-input4-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab1-input5" class="form-label">入力項目5：</label>
-                                <input type="text" class="form-control tab-input" id="tab1-input5" tabindex="5">
-                                <div class="input-status" id="tab1-input5-status"></div>
+                    <div class="tab-content" id="myTabsContent">
+                        <!-- タブ1の内容 -->
+                        <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+                            <div class="p-3 border">
+                                <h4>タブ1のコンテンツ</h4>
+                                <div class="form-group mb-3">
+                                    <label for="tab1-input1" class="form-label">入力項目1：</label>
+                                    <input type="text" class="form-control tab-input" id="tab1-input1" tabindex="1">
+                                    <div class="input-status" id="tab1-input1-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab1-input2" class="form-label">入力項目2：</label>
+                                    <input type="text" class="form-control tab-input" id="tab1-input2" tabindex="2">
+                                    <div class="input-status" id="tab1-input2-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab1-input3" class="form-label">入力項目3：</label>
+                                    <input type="text" class="form-control tab-input" id="tab1-input3" tabindex="3">
+                                    <div class="input-status" id="tab1-input3-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab1-input4" class="form-label">入力項目4：</label>
+                                    <input type="text" class="form-control tab-input" id="tab1-input4" tabindex="4">
+                                    <div class="input-status" id="tab1-input4-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab1-input5" class="form-label">入力項目5：</label>
+                                    <input type="text" class="form-control tab-input" id="tab1-input5" tabindex="5">
+                                    <div class="input-status" id="tab1-input5-status"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- タブ2の内容 -->
-                    <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
-                        <div class="p-3 border">
-                            <h4>タブ2のコンテンツ</h4>
-                            <div class="form-group mb-3">
-                                <label for="tab2-input1" class="form-label">入力項目1：</label>
-                                <input type="text" class="form-control tab-input" id="tab2-input1" tabindex="6">
-                                <div class="input-status" id="tab2-input1-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab2-input2" class="form-label">入力項目2：</label>
-                                <input type="text" class="form-control tab-input" id="tab2-input2" tabindex="7">
-                                <div class="input-status" id="tab2-input2-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab2-input3" class="form-label">入力項目3：</label>
-                                <input type="text" class="form-control tab-input" id="tab2-input3" tabindex="8">
-                                <div class="input-status" id="tab2-input3-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab2-input4" class="form-label">入力項目4：</label>
-                                <input type="text" class="form-control tab-input" id="tab2-input4" tabindex="9">
-                                <div class="input-status" id="tab2-input4-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab2-input5" class="form-label">入力項目5：</label>
-                                <input type="text" class="form-control tab-input" id="tab2-input5" tabindex="10">
-                                <div class="input-status" id="tab2-input5-status"></div>
+                        <!-- タブ2の内容 -->
+                        <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+                            <div class="p-3 border">
+                                <h4>タブ2のコンテンツ</h4>
+                                <div class="form-group mb-3">
+                                    <label for="tab2-input1" class="form-label">入力項目1：</label>
+                                    <input type="text" class="form-control tab-input" id="tab2-input1" tabindex="6">
+                                    <div class="input-status" id="tab2-input1-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab2-input2" class="form-label">入力項目2：</label>
+                                    <input type="text" class="form-control tab-input" id="tab2-input2" tabindex="7">
+                                    <div class="input-status" id="tab2-input2-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab2-input3" class="form-label">入力項目3：</label>
+                                    <input type="text" class="form-control tab-input" id="tab2-input3" tabindex="8">
+                                    <div class="input-status" id="tab2-input3-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab2-input4" class="form-label">入力項目4：</label>
+                                    <input type="text" class="form-control tab-input" id="tab2-input4" tabindex="9">
+                                    <div class="input-status" id="tab2-input4-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab2-input5" class="form-label">入力項目5：</label>
+                                    <input type="text" class="form-control tab-input" id="tab2-input5" tabindex="10">
+                                    <div class="input-status" id="tab2-input5-status"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- タブ3の内容 -->
-                    <div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="tab3-tab">
-                        <div class="p-3 border">
-                            <h4>タブ3のコンテンツ</h4>
-                            <div class="form-group mb-3">
-                                <label for="tab3-input1" class="form-label">入力項目1：</label>
-                                <input type="text" class="form-control tab-input" id="tab3-input1" tabindex="11">
-                                <div class="input-status" id="tab3-input1-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab3-input2" class="form-label">入力項目2：</label>
-                                <input type="text" class="form-control tab-input" id="tab3-input2" tabindex="12">
-                                <div class="input-status" id="tab3-input2-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab3-input3" class="form-label">入力項目3：</label>
-                                <input type="text" class="form-control tab-input" id="tab3-input3" tabindex="13">
-                                <div class="input-status" id="tab3-input3-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab3-input4" class="form-label">入力項目4：</label>
-                                <input type="text" class="form-control tab-input" id="tab3-input4" tabindex="14">
-                                <div class="input-status" id="tab3-input4-status"></div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tab3-input5" class="form-label">入力項目5：</label>
-                                <input type="text" class="form-control tab-input" id="tab3-input5" tabindex="15">
-                                <div class="input-status" id="tab3-input5-status"></div>
+                        <!-- タブ3の内容 -->
+                        <div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="tab3-tab">
+                            <div class="p-3 border">
+                                <h4>タブ3のコンテンツ</h4>
+                                <div class="form-group mb-3">
+                                    <label for="tab3-input1" class="form-label">入力項目1：</label>
+                                    <input type="text" class="form-control tab-input" id="tab3-input1" tabindex="11">
+                                    <div class="input-status" id="tab3-input1-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab3-input2" class="form-label">入力項目2：</label>
+                                    <input type="text" class="form-control tab-input" id="tab3-input2" tabindex="12">
+                                    <div class="input-status" id="tab3-input2-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab3-input3" class="form-label">入力項目3：</label>
+                                    <input type="text" class="form-control tab-input" id="tab3-input3" tabindex="13">
+                                    <div class="input-status" id="tab3-input3-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab3-input4" class="form-label">入力項目4：</label>
+                                    <input type="text" class="form-control tab-input" id="tab3-input4" tabindex="14">
+                                    <div class="input-status" id="tab3-input4-status"></div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="tab3-input5" class="form-label">入力項目5：</label>
+                                    <input type="text" class="form-control tab-input" id="tab3-input5" tabindex="15">
+                                    <div class="input-status" id="tab3-input5-status"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -178,7 +202,7 @@
         </div>
 
         <!-- ボタンセクション -->
-        <div class="mb-4">
+        <div class="button-section mb-4">
             <button type="button" class="btn btn-primary" id="submitBtn">送信</button>
             <button type="button" class="btn btn-secondary" id="resetBtn">リセット</button>
         </div>
@@ -186,7 +210,11 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- カスタムJS -->
+    <!-- 共通モジュール（最初に読み込む） -->
+    <script src="CommonModule.js"></script>
+    <!-- タブナビゲーション拡張JS -->
+    <script src="tabNavigation.js"></script>
+    <!-- カスタムJS（最後に読み込む） -->
     <script src="script.js"></script>
 </body>
 </html>

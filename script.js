@@ -1,14 +1,101 @@
 $(document).ready(function() {
     /**
-     * Bootstrapタブの初期化 - 修正：buttonタグを使用するように変更
+     * Bootstrapタブの初期化 - すべてのタブボタンを正しく初期化
      */
-    var tabEl = document.querySelector('button[data-bs-toggle="tab"]');
-    var tab = new bootstrap.Tab(tabEl);
+    // 個別のタブ要素を初期化するのではなく、Bootstrapの標準機能を使用
+    // Bootstrap 5ではタブは自動的に初期化されるため、明示的な初期化は不要です
 
     /**
      * 全ての入力要素を取得
      */
     const allInputs = $('.tab-input');
+
+    /**
+     * タブナビゲーション機能の初期化
+     * 注意: CommonModule.jsが先に読み込まれていることを前提にしています
+     */
+    const tabIds = ['tab1', 'tab2', 'tab3'];
+    const tabNav = new TabNavigationUtil();
+
+    // コールバック関数を使ってタブ切り替えを実装
+    tabNav.initialize(tabIds, {
+        debug: true, // デバッグ出力を有効化
+        // 入力フィールドのセレクタを設定
+        inputSelector: '.tab-input:not(:disabled)',
+        // Bootstrap 5のタブコンテンツ関連セレクタを設定
+        tabContentSelector: {
+            tabPane: '.tab-pane',
+            activeClass: 'active',
+            showClass: 'show'
+        },
+        callbacks: {
+            // タブ切り替えコールバック
+            onTabChange: function(direction, fromTabId, toTabId) {
+                console.log(`タブ切り替え: ${direction} ${fromTabId} -> ${toTabId}`);
+
+                // タブが切り替わる前に、予め要素を取得しておく（非表示状態でも取得可能）
+                let targetInput = null;
+
+                if (direction === 'next') {
+                    // 次へ移動の場合：最初の有効な入力を事前に特定
+                    const allInputs = Array.from(document.querySelectorAll(`#${toTabId} .tab-input`))
+                        .filter(input => !input.disabled);
+                    targetInput = allInputs.length > 0 ? allInputs[0] : null;
+                } else {
+                    // 前へ移動の場合：最後の有効な入力を事前に特定
+                    const allInputs = Array.from(document.querySelectorAll(`#${toTabId} .tab-input`))
+                        .filter(input => !input.disabled);
+                    targetInput = allInputs.length > 0 ? allInputs[allInputs.length - 1] : null;
+                }
+
+                // 現在のタブを非表示に
+                $(`#${fromTabId}`).removeClass('active show');
+
+                // 次のタブを表示
+                $(`#${toTabId}`).addClass('active show');
+
+                // タブボタンの状態も更新
+                $(`#${fromTabId}-tab`).removeClass('active');
+                $(`#${toTabId}-tab`).addClass('active');
+
+                // 適切な要素にフォーカス
+                if (targetInput) {
+                    // タブ表示更新とフォーカスのタイミングを少し分ける
+                    setTimeout(() => {
+                        if (direction === 'next') {
+                            console.log(`次のタブの最初の要素にフォーカス: ${targetInput.id}`);
+                        } else {
+                            console.log(`前のタブの最後の要素にフォーカス: ${targetInput.id}`);
+                        }
+                        targetInput.focus();
+                    }, 50);
+                } else {
+                    console.log(`警告: ${toTabId} 内に有効な入力要素が見つかりません`);
+                }
+            },
+
+            // 次のセクションへの移動コールバック
+            onNextSection: function(fromTabId) {
+                console.log(`次のセクションへ移動: ${fromTabId}`);
+
+                // ボタンセクションの最初の要素にフォーカス
+                const firstButton = $('.button-section button').first();
+                if (firstButton.length) {
+                    firstButton.focus();
+                }
+            },
+
+            // 前のセクションへの移動コールバック
+            onPrevSection: function(fromTabId) {
+                console.log(`前のセクションへ移動: ${fromTabId}`);
+
+                // DDLセクションの要素にフォーカス
+                $('#patternSelect').focus();
+            }
+        }
+    });
+
+    console.log('スクリプト初期化完了: タブナビゲーションがキャプチャフェーズで登録されました');
 
     /**
      * パターン選択が変更されたときの処理
@@ -34,9 +121,9 @@ $(document).ready(function() {
         switch(pattern) {
             case '1':
                 // パターン1: 各タブから1つずつランダムに無効化
-                disableRandomInputsInTab('tab1', 2);
-                disableRandomInputsInTab('tab2', 3);
-                disableRandomInputsInTab('tab3', 3);
+                disableRandomInputsInTab('tab1', 1);
+                disableRandomInputsInTab('tab2', 1);
+                disableRandomInputsInTab('tab3', 1);
                 break;
             case '2':
                 // パターン2: 各タブからランダムな数の入力フィールドを無効化
@@ -46,7 +133,7 @@ $(document).ready(function() {
                 break;
             case '3':
                 // パターン3: 各タブの特定の位置の入力フィールドを無効化
-                $('#tab1-input2, #tab1-input5, #tab2-input3, #tab3-input1').prop('disabled', true)
+                $('#tab1-input2, #tab2-input3, #tab3-input4').prop('disabled', true)
                     .each(function() {
                         updateInputStatus($(this).attr('id'), true);
                     });
@@ -69,7 +156,7 @@ $(document).ready(function() {
 
     /**
      * 指定されたタブ内でランダムに入力フィールドを無効化する関数
-     * @param {string} tabId - 対象となるタブのID
+     * @param {string} tabId - 対象のタブID
      * @param {number} count - 無効化する入力フィールドの数
      */
     function disableRandomInputsInTab(tabId, count) {
@@ -97,7 +184,7 @@ $(document).ready(function() {
 
     /**
      * 入力フィールドのステータス表示を更新する関数
-     * @param {string} inputId - 対象となる入力フィールドのID
+     * @param {string} inputId - 入力フィールドのID
      * @param {boolean} isDisabled - 無効状態かどうか
      */
     function updateInputStatus(inputId, isDisabled) {
@@ -110,49 +197,35 @@ $(document).ready(function() {
     }
 
     /**
-     * キーダウンイベントを監視して、Tab/Enterキーの動作をカスタマイズ
+     * タブが表示されたときのイベント処理
      */
-    $(document).on('keydown', '.tab-input', function(e) {
-        const inputs = $('.tab-input').not(':disabled');
-        const currentIndex = inputs.index(this);
-        const lastIndex = inputs.length - 1;
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        // タブ切り替え時の処理を記録
+        console.log('タブ切り替えイベント: ' + $(e.target).attr('id') + ' へ切り替え');
 
-        // Enterキーが押された場合
-        if (e.key === 'Enter') {
-            e.preventDefault();
-
-            // Shiftキーと一緒に押された場合は前の入力へ
-            if (e.shiftKey) {
-                if (currentIndex > 0) {
-                    inputs.eq(currentIndex - 1).focus();
-                } else {
-                    // 先頭の場合は最後の入力にループ
-                    inputs.eq(lastIndex).focus();
+        // 表示されたタブの最初の有効な入力フィールドにフォーカス
+        const tabId = $(e.target).attr('data-bs-target');
+        if (tabId) {
+            setTimeout(() => {
+                const firstEnabledInput = $(tabId).find('.tab-input').not(':disabled').first();
+                if (firstEnabledInput.length) {
+                    firstEnabledInput.focus();
+                    console.log('タブ切り替え後のフォーカス: ' + firstEnabledInput.attr('id'));
                 }
-            } else {
-                // 次の入力へ
-                if (currentIndex < lastIndex) {
-                    inputs.eq(currentIndex + 1).focus();
-                } else {
-                    // 最後の場合は先頭の入力にループ
-                    inputs.eq(0).focus();
-                }
-            }
+            }, 50); // 少し遅延を入れてDOMの更新を待つ
         }
     });
 
     /**
-     * タブが表示されたときのイベント処理
+     * タブボタンのクリックイベント処理
      */
-    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-        // 表示されたタブの最初の有効な入力フィールドにフォーカス
-        const tabId = $(e.target).data('bs-target');
-        if (tabId) {
-            const firstEnabledInput = $(tabId).find('.tab-input').not(':disabled').first();
-            if (firstEnabledInput.length) {
-                firstEnabledInput.focus();
-            }
-        }
+    $('.nav-tabs .nav-link').on('click', function() {
+        // Bootstrapのタブ機能を使用するため、ここでのカスタム切り替え処理は削除
+        // フォーカス管理のみを行う
+        const targetTabId = $(this).attr('data-bs-target').substring(1); // #を削除
+
+        // フォーカス処理はBootstrapのイベントを使って行う方が適切
+        console.log(`タブボタンがクリックされました: ${targetTabId}`);
     });
 
     /**
@@ -163,11 +236,10 @@ $(document).ready(function() {
         allInputs.val('');
 
         // 最初のタブに戻る
-        const firstTabElement = document.querySelector('#tab1-tab');
-        if (firstTabElement) {
-            const firstTab = new bootstrap.Tab(firstTabElement);
-            firstTab.show();
-        }
+        $('.tab-pane').removeClass('show active').hide();
+        $('#tab1').addClass('show active').show();
+        $('.nav-tabs .nav-link').removeClass('active');
+        $('#tab1-tab').addClass('active');
 
         // 現在のパターンを再適用
         const pattern = $('#patternSelect').val();
