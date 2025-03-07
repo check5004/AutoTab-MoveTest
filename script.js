@@ -72,25 +72,6 @@ $(document).ready(function() {
                 } else {
                     console.log(`警告: ${toTabId} 内に有効な入力要素が見つかりません`);
                 }
-            },
-
-            // 次のセクションへの移動コールバック
-            onNextSection: function(fromTabId) {
-                console.log(`次のセクションへ移動: ${fromTabId}`);
-
-                // ボタンセクションの最初の要素にフォーカス
-                const firstButton = $('.button-section button').first();
-                if (firstButton.length) {
-                    firstButton.focus();
-                }
-            },
-
-            // 前のセクションへの移動コールバック
-            onPrevSection: function(fromTabId) {
-                console.log(`前のセクションへ移動: ${fromTabId}`);
-
-                // DDLセクションの要素にフォーカス
-                $('#patternSelect').focus();
             }
         }
     });

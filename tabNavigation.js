@@ -18,11 +18,7 @@ class TabNavigationUtil {
         // コールバック関数
         callbacks: {
             // タブ切り替えコールバック (direction, fromTabId, toTabId) => void
-            onTabChange: null,
-            // 次のセクションへ移動コールバック (fromTabId) => void
-            onNextSection: null,
-            // 前のセクションへ移動コールバック (fromTabId) => void
-            onPrevSection: null
+            onTabChange: null
         }
     };
 
@@ -359,39 +355,31 @@ class TabNavigationUtil {
 
         // Enterキーの場合のタブ切り替え
         if (isEnter) {
+            // 最初のタブの最初の入力要素でShift+Enterが押された場合はイベントを処理しない
+            if (isShiftKey && isFirstInput && this.isFirstTab(tabId)) {
+                if (this.config.debug) {
+                    console.log('最初のタブの最初の入力要素でShift+Enterが押されたため、デフォルト処理を許可');
+                }
+                return;
+            }
+
             if (isShiftKey && isFirstInput) {
-                // 最初の要素でShift+Enterが押された場合
-                if (this.isFirstTab(tabId)) {
-                    // 最初のタブの場合は前のセクションへ
-                    if (this.config.callbacks.onPrevSection) {
-                        this.config.callbacks.onPrevSection(tabId);
-                        event.preventDefault();
-                        event.stopImmediatePropagation(); // 伝播を完全に停止
-                        console.log('前のセクションへ移動処理を実行');
-                        return true;
-                    }
-                } else {
-                    // 前のタブへ移動
-                    const prevTabId = this.getPrevTabId(tabId);
-                    if (prevTabId && this.config.callbacks.onTabChange) {
-                        this.config.callbacks.onTabChange('prev', tabId, prevTabId);
-                        event.preventDefault();
-                        event.stopImmediatePropagation(); // 伝播を完全に停止
-                        console.log(`前のタブ ${prevTabId} へ移動処理を実行`);
-                        return true;
-                    }
+                // 前のタブへ移動（最初のタブ以外の場合）
+                const prevTabId = this.getPrevTabId(tabId);
+                if (prevTabId && this.config.callbacks.onTabChange) {
+                    this.config.callbacks.onTabChange('prev', tabId, prevTabId);
+                    event.preventDefault();
+                    event.stopImmediatePropagation(); // 伝播を完全に停止
+                    console.log(`前のタブ ${prevTabId} へ移動処理を実行`);
+                    return true;
                 }
             } else if (!isShiftKey && isLastInput) {
-                // 最後の要素でEnterが押された場合
+                // 最後のタブの最後の入力要素の場合はデフォルト処理を許可
                 if (this.isLastTab(tabId)) {
-                    // 最後のタブの場合は次のセクションへ
-                    if (this.config.callbacks.onNextSection) {
-                        console.log('次のセクションへ移動を実行します');
-                        this.config.callbacks.onNextSection(tabId);
-                        event.preventDefault();
-                        event.stopImmediatePropagation(); // 伝播を完全に停止
-                        return true;
+                    if (this.config.debug) {
+                        console.log('最後のタブの最後の入力要素でEnterが押されたため、デフォルト処理を許可');
                     }
+                    return;
                 } else {
                     // 次のタブへ移動
                     const nextTabId = this.getNextTabId(tabId);
