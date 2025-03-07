@@ -19,8 +19,6 @@ $(document).ready(function() {
     // コールバック関数を使ってタブ切り替えを実装
     tabNav.initialize({
         debug: true, // デバッグ出力を有効化
-        // 入力フィールドのセレクタを設定
-        inputSelector: '.tab-input:not(:disabled)',
         // タブナビゲーションの挙動設定
         behavior: {
             // 前のタブに移動する際、最後の要素にフォーカスする（falseの場合は最初の要素）
