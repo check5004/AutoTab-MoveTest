@@ -15,6 +15,11 @@ class TabNavigationUtil {
             tabPane: '.tab-pane',
             activeClass: 'active',
         },
+        // タブナビゲーションの挙動設定
+        behavior: {
+            // 前のタブに移動する際、最後の要素にフォーカスするか（falseの場合は最初の要素）
+            focusLastElementOnPrevTab: true,
+        },
         // コールバック関数
         callbacks: {
             // タブ切り替えコールバック (direction, fromTabId, toTabId) => void
@@ -366,11 +371,14 @@ class TabNavigationUtil {
             if (isShiftKey && isFirstInput) {
                 // 前のタブへ移動（最初のタブ以外の場合）
                 const prevTabId = this.getPrevTabId(tabId);
-                if (prevTabId && this.config.callbacks.onTabChange) {
-                    this.config.callbacks.onTabChange('prev', tabId, prevTabId);
+                if (prevTabId) {
+                    if (this.config.callbacks.onTabChange) {
+                        this.config.callbacks.onTabChange('prev', tabId, prevTabId);
+                    }
+                    // 内部メソッドで処理
+                    this._handleFocusAfterTabChange('prev', prevTabId);
                     event.preventDefault();
                     event.stopImmediatePropagation(); // 伝播を完全に停止
-                    console.log(`前のタブ ${prevTabId} へ移動処理を実行`);
                     return true;
                 }
             } else if (!isShiftKey && isLastInput) {
@@ -383,9 +391,12 @@ class TabNavigationUtil {
                 } else {
                     // 次のタブへ移動
                     const nextTabId = this.getNextTabId(tabId);
-                    if (nextTabId && this.config.callbacks.onTabChange) {
-                        console.log(`次のタブ ${nextTabId} へ移動を実行します`);
-                        this.config.callbacks.onTabChange('next', tabId, nextTabId);
+                    if (nextTabId) {
+                        if (this.config.callbacks.onTabChange) {
+                            this.config.callbacks.onTabChange('next', tabId, nextTabId);
+                        }
+                        // 内部メソッドで処理
+                        this._handleFocusAfterTabChange('next', nextTabId);
                         event.preventDefault();
                         event.stopImmediatePropagation(); // 伝播を完全に停止
                         return true;
@@ -414,11 +425,14 @@ class TabNavigationUtil {
                     } else {
                         // 前のタブへ移動
                         const prevTabId = this.getPrevTabId(tabId);
-                        if (prevTabId && this.config.callbacks.onTabChange) {
-                            this.config.callbacks.onTabChange('prev', tabId, prevTabId);
+                        if (prevTabId) {
+                            if (this.config.callbacks.onTabChange) {
+                                this.config.callbacks.onTabChange('prev', tabId, prevTabId);
+                            }
+                            // 内部メソッドで処理
+                            this._handleFocusAfterTabChange('prev', prevTabId);
                             event.preventDefault();
                             event.stopImmediatePropagation(); // 伝播を完全に停止
-                            console.log(`Tab: 前のタブ ${prevTabId} へ移動処理を実行`);
                             return true;
                         }
                     }
@@ -429,11 +443,14 @@ class TabNavigationUtil {
                     } else {
                         // 次のタブへ移動
                         const nextTabId = this.getNextTabId(tabId);
-                        if (nextTabId && this.config.callbacks.onTabChange) {
-                            this.config.callbacks.onTabChange('next', tabId, nextTabId);
+                        if (nextTabId) {
+                            if (this.config.callbacks.onTabChange) {
+                                this.config.callbacks.onTabChange('next', tabId, nextTabId);
+                            }
+                            // 内部メソッドで処理
+                            this._handleFocusAfterTabChange('next', nextTabId);
                             event.preventDefault();
                             event.stopImmediatePropagation(); // 伝播を完全に停止
-                            console.log(`Tab: 次のタブ ${nextTabId} へ移動処理を実行`);
                             return true;
                         }
                     }
@@ -442,5 +459,56 @@ class TabNavigationUtil {
         }
 
         return false;
+    }
+
+    /**
+     * タブ切り替え後のフォーカス制御を行う内部メソッド
+     * @param {string} direction - 移動方向 ('next' または 'prev')
+     * @param {string} toTabId - 移動先のタブID
+     * @private
+     */
+    _handleFocusAfterTabChange(direction, toTabId) {
+        if (!toTabId) {
+            console.error('タブIDが指定されていません');
+            return;
+        }
+
+        if (this.config.debug) {
+            console.log(`タブ切り替え後のフォーカス処理: ${direction} -> ${toTabId}`);
+        }
+
+        // タブが切り替わる前に、予め要素を取得しておく（非表示状態でも取得可能）
+        let targetInput = null;
+
+        try {
+            if (direction === 'next' || (direction === 'prev' && !this.config.behavior.focusLastElementOnPrevTab)) {
+                // 次へ移動の場合、または前へ移動で最初の要素にフォーカスする設定の場合
+                const enabledInputs = this.getEnabledInputsInTab(toTabId);
+                targetInput = enabledInputs.length > 0 ? enabledInputs[0] : null;
+            } else {
+                // 前へ移動で最後の要素にフォーカスする場合
+                const enabledInputs = this.getEnabledInputsInTab(toTabId);
+                targetInput = enabledInputs.length > 0 ? enabledInputs[enabledInputs.length - 1] : null;
+            }
+
+            // 適切な要素にフォーカス
+            if (targetInput) {
+                // タブ表示更新とフォーカスのタイミングを少し分ける
+                setTimeout(() => {
+                    if (this.config.debug) {
+                        if (direction === 'next') {
+                            console.log(`次のタブの${direction === 'next' ? '最初' : '適切な'}要素にフォーカス: ${targetInput.id || '不明'}`);
+                        } else {
+                            console.log(`前のタブの${this.config.behavior.focusLastElementOnPrevTab ? '最後' : '最初'}の要素にフォーカス: ${targetInput.id || '不明'}`);
+                        }
+                    }
+                    targetInput.focus();
+                }, 50);
+            } else {
+                console.log(`警告: ${toTabId} 内に有効な入力要素が見つかりません`);
+            }
+        } catch (error) {
+            console.error(`フォーカス設定中にエラーが発生しました: ${error.message}`);
+        }
     }
 }

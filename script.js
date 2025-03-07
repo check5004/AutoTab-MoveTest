@@ -21,57 +21,28 @@ $(document).ready(function() {
         debug: true, // デバッグ出力を有効化
         // 入力フィールドのセレクタを設定
         inputSelector: '.tab-input:not(:disabled)',
-        // タブコンテンツに関するセレクタ/クラス名
-        tabContentSelector: {
-            // タブセクションのセレクタ
-            tabPane: '.tab-pane',
-            // アクティブなタブのクラス
-            activeClass: 'active',
+        // タブナビゲーションの挙動設定
+        behavior: {
+            // 前のタブに移動する際、最後の要素にフォーカスする（falseの場合は最初の要素）
+            focusLastElementOnPrevTab: true,
         },
         callbacks: {
             // タブ切り替えコールバック
             onTabChange: function(direction, fromTabId, toTabId) {
-                console.log(`タブ切り替え: ${direction} ${fromTabId} -> ${toTabId}`);
+                console.log(`タブナビゲーション: ${direction} ${fromTabId} -> ${toTabId}`);
 
-                // タブが切り替わる前に、予め要素を取得しておく（非表示状態でも取得可能）
-                let targetInput = null;
-
-                if (direction === 'next') {
-                    // 次へ移動の場合：最初の有効な入力を事前に特定
-                    const allInputs = Array.from(document.querySelectorAll(`#${toTabId} .tab-input`))
-                        .filter(input => !input.disabled);
-                    targetInput = allInputs.length > 0 ? allInputs[0] : null;
-                } else {
-                    // 前へ移動の場合：最後の有効な入力を事前に特定
-                    const allInputs = Array.from(document.querySelectorAll(`#${toTabId} .tab-input`))
-                        .filter(input => !input.disabled);
-                    targetInput = allInputs.length > 0 ? allInputs[allInputs.length - 1] : null;
-                }
-
+                // タブの表示切り替え処理
                 // 現在のタブを非表示に
-                $(`#${fromTabId}`).removeClass('active');
+                $(`#${fromTabId}`).removeClass('active show');
 
                 // 次のタブを表示
-                $(`#${toTabId}`).addClass('active');
+                $(`#${toTabId}`).addClass('active show');
 
                 // タブボタンの状態も更新
                 $(`#${fromTabId}-tab`).removeClass('active');
                 $(`#${toTabId}-tab`).addClass('active');
 
-                // 適切な要素にフォーカス
-                if (targetInput) {
-                    // タブ表示更新とフォーカスのタイミングを少し分ける
-                    setTimeout(() => {
-                        if (direction === 'next') {
-                            console.log(`次のタブの最初の要素にフォーカス: ${targetInput.id}`);
-                        } else {
-                            console.log(`前のタブの最後の要素にフォーカス: ${targetInput.id}`);
-                        }
-                        targetInput.focus();
-                    }, 50);
-                } else {
-                    console.log(`警告: ${toTabId} 内に有効な入力要素が見つかりません`);
-                }
+                // フォーカス処理はTabNavigationUtilが担当
             }
         }
     });
@@ -177,36 +148,83 @@ $(document).ready(function() {
         }
     }
 
-    /**
-     * タブが表示されたときのイベント処理
-     */
-    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-        // タブ切り替え時の処理を記録
-        console.log('タブ切り替えイベント: ' + $(e.target).attr('id') + ' へ切り替え');
+    // Bootstrap互換のタブイベントをリッスンしてフォーカス処理を実行
+    // 注：この機能はタブナビゲーションからの切り替えではなく、通常のタブクリック操作用
+    $('a[data-toggle="tab"], button[data-tab-target]').on('shown.bs.tab', function (e) {
+        // preventDefault()を使用しているため通常は実行されないが、
+        // 他の方法でBootstrapタブが起動された場合にフォーカス処理を行う
+        const toTabId = $(e.target).attr('data-tab-target') || $(e.target).attr('href');
 
-        // 表示されたタブの最初の有効な入力フィールドにフォーカス
-        const tabId = $(e.target).attr('data-bs-target');
-        if (tabId) {
+        if (toTabId) {
+            console.log(`タブ切り替えイベント検出: to=${toTabId}`);
+
+            // フォーカス処理はカスタム実装と同じ手法を使用
             setTimeout(() => {
-                const firstEnabledInput = $(tabId).find('.tab-input').not(':disabled').first();
+                const firstEnabledInput = $(`${toTabId} .tab-input:not(:disabled)`).first();
                 if (firstEnabledInput.length) {
                     firstEnabledInput.focus();
-                    console.log('タブ切り替え後のフォーカス: ' + firstEnabledInput.attr('id'));
+                    console.log('標準タブ切り替え後のフォーカス: ' + firstEnabledInput.attr('id'));
                 }
-            }, 50); // 少し遅延を入れてDOMの更新を待つ
+            }, 50);
         }
     });
 
     /**
      * タブボタンのクリックイベント処理
      */
-    $('.nav-tabs .nav-link').on('click', function() {
-        // Bootstrapのタブ機能を使用するため、ここでのカスタム切り替え処理は削除
-        // フォーカス管理のみを行う
-        const targetTabId = $(this).attr('data-bs-target').substring(1); // #を削除
+    $('.nav-tabs .nav-link').on('click', function(e) {
+        // デバッグ：ボタン要素の詳細を出力
+        console.log('クリックされたタブボタン:', this);
+        console.log('属性 data-tab-target:', $(this).attr('data-tab-target'));
+        console.log('属性 href:', $(this).attr('href'));
+        console.log('属性 id:', $(this).attr('id'));
 
-        // フォーカス処理はBootstrapのイベントを使って行う方が適切
-        console.log(`タブボタンがクリックされました: ${targetTabId}`);
+        // ターゲットのタブパネルを取得（独自属性data-tab-targetを優先）
+        let target = $(this).attr('data-tab-target') || $(this).attr('href');
+
+        // もしターゲットが見つからない場合は、id属性から推測する
+        if (!target) {
+            const btnId = $(this).attr('id');
+            if (btnId && btnId.endsWith('-tab')) {
+                const tabId = btnId.replace('-tab', '');
+                target = `#${tabId}`;
+                console.log(`ターゲットをID ${btnId} から推測: ${target}`);
+            }
+        }
+
+        if (target) {
+            // 現在のタブIDを取得
+            const currentTab = $('.tab-pane.active').attr('id');
+            const targetTabId = target.substring(1); // #を削除
+
+            console.log(`タブ切り替え: ${currentTab || '不明'} -> ${targetTabId}`);
+
+            // カスタムタブ切り替え
+            // 全てのタブパネルを非アクティブに
+            $('.tab-pane').removeClass('active show');
+            $('.nav-tabs .nav-link').removeClass('active');
+
+            // 対象のタブパネルとタブボタンをアクティブに
+            $(target).addClass('active show');
+            $(this).addClass('active');
+
+            // フォーカス処理
+            setTimeout(() => {
+                const firstEnabledInput = $(`${target} .tab-input:not(:disabled)`).first();
+                if (firstEnabledInput.length) {
+                    firstEnabledInput.focus();
+                    console.log('タブ切り替え後のフォーカス: ' + firstEnabledInput.attr('id'));
+                } else {
+                    console.log(`警告: タブ ${targetTabId} 内に有効な入力要素が見つかりません`);
+                }
+            }, 50);
+
+            // デフォルト動作を防ぐためイベントをキャンセル
+            e.preventDefault();
+        } else {
+            console.log('エラー: タブボタンのターゲットが見つかりません');
+            console.log('クリックされた要素:', this);
+        }
     });
 
     /**
@@ -217,14 +235,25 @@ $(document).ready(function() {
         allInputs.val('');
 
         // 最初のタブに戻る
-        $('.tab-pane').removeClass('show active').hide();
-        $('#tab1').addClass('show active').show();
+        $('.tab-pane').removeClass('active show');
+        $('#tab1').addClass('active show');
         $('.nav-tabs .nav-link').removeClass('active');
         $('#tab1-tab').addClass('active');
 
+        // 最初のタブの最初の入力フィールドにフォーカス
+        setTimeout(() => {
+            const firstEnabledInput = $('#tab1 .tab-input:not(:disabled)').first();
+            if (firstEnabledInput.length) {
+                firstEnabledInput.focus();
+                console.log('リセット後のフォーカス: ' + firstEnabledInput.attr('id'));
+            }
+        }, 50);
+
         // 現在のパターンを再適用
         const pattern = $('#patternSelect').val();
-        applyPattern(pattern);
+        if (pattern) {
+            applyPattern(pattern);
+        }
     });
 
     /**
