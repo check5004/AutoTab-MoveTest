@@ -23,6 +23,7 @@ class TabNavigationUtil {
         // コールバック関数
         callbacks: {
             // タブ切り替えコールバック (direction, fromTabId, toTabId) => void
+            // ここにタブ切り替えの処理を実装しなければ動かない
             onTabChange: null
         }
     };
@@ -505,7 +506,9 @@ class TabNavigationUtil {
                     targetInput.focus();
                 }, 50);
             } else {
-                console.log(`警告: ${toTabId} 内に有効な入力要素が見つかりません`);
+                if (this.config.debug) {
+                    console.log(`警告: ${toTabId} 内に有効な入力要素が見つかりません`);
+                }
             }
         } catch (error) {
             console.error(`フォーカス設定中にエラーが発生しました: ${error.message}`);
