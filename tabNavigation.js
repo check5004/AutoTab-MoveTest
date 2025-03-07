@@ -10,11 +10,11 @@ class TabNavigationUtil {
         inputSelector: 'input[type="text"], input[type="number"], select, textarea, button:not([type="submit"])',
         // デバッグモード
         debug: false,
-        // タブコンテンツに関するセレクタ/クラス名（Bootstrap5のデフォルト）
+        // タブコンテンツに関するセレクタ/クラス名（jQuery版向けに変更）
         tabContentSelector: {
             tabPane: '.tab-pane',
             activeClass: 'active',
-            showClass: 'show'
+            // showClassは不要になったため削除
         },
         // コールバック関数
         callbacks: {
@@ -154,8 +154,7 @@ class TabNavigationUtil {
         const tabPane = element.closest(tabPaneSelector);
         if (tabPane) {
             // タブコンテンツのアクティブ状態をチェック（設定から動的に取得）
-            const isActive = tabPane.classList.contains(this.config.tabContentSelector.activeClass) ||
-                             tabPane.classList.contains(this.config.tabContentSelector.showClass);
+            const isActive = tabPane.classList.contains(this.config.tabContentSelector.activeClass);
 
             if (!isActive) {
                 if (this.config.debug) {
