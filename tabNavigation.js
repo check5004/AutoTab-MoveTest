@@ -14,7 +14,6 @@ class TabNavigationUtil {
         tabContentSelector: {
             tabPane: '.tab-pane',
             activeClass: 'active',
-            // showClassは不要になったため削除
         },
         // コールバック関数
         callbacks: {

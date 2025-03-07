@@ -22,11 +22,12 @@ $(document).ready(function() {
         debug: true, // デバッグ出力を有効化
         // 入力フィールドのセレクタを設定
         inputSelector: '.tab-input:not(:disabled)',
-        // Bootstrap 5のタブコンテンツ関連セレクタを設定
+        // タブコンテンツに関するセレクタ/クラス名
         tabContentSelector: {
+            // タブセクションのセレクタ
             tabPane: '.tab-pane',
+            // アクティブなタブのクラス
             activeClass: 'active',
-            showClass: 'show'
         },
         callbacks: {
             // タブ切り替えコールバック
@@ -49,10 +50,10 @@ $(document).ready(function() {
                 }
 
                 // 現在のタブを非表示に
-                $(`#${fromTabId}`).removeClass('active show');
+                $(`#${fromTabId}`).removeClass('active');
 
                 // 次のタブを表示
-                $(`#${toTabId}`).addClass('active show');
+                $(`#${toTabId}`).addClass('active');
 
                 // タブボタンの状態も更新
                 $(`#${fromTabId}-tab`).removeClass('active');
