@@ -30,26 +30,26 @@ class TabNavigationUtil {
 
     /**
      * タブナビゲーション機能を初期化する
-     * @param {Object} options - オプション設定
+     * @param {Object} customConfig - オプション設定
      */
-    initialize(options = {}) {
+    initialize(customConfig = {}) {
         // コールバック設定をマージ
-        if (options.callbacks) {
-            this.config.callbacks = {...this.config.callbacks, ...options.callbacks};
-            delete options.callbacks;
+        if (customConfig.callbacks) {
+            this.config.callbacks = {...this.config.callbacks, ...customConfig.callbacks};
+            delete customConfig.callbacks;
         }
 
         // タブコンテンツ関連の設定をマージ
-        if (options.tabContentSelector) {
+        if (customConfig.tabContentSelector) {
             this.config.tabContentSelector = {
                 ...this.config.tabContentSelector,
-                ...options.tabContentSelector
+                ...customConfig.tabContentSelector
             };
-            delete options.tabContentSelector;
+            delete customConfig.tabContentSelector;
         }
 
         // その他のオプションをマージ
-        Object.assign(this.config, options);
+        Object.assign(this.config, customConfig);
 
         // タブペインからタブIDを自動的に取得
         const tabPaneSelector = this.config.tabContentSelector.tabPane;
