@@ -28,15 +28,9 @@ class TabNavigationUtil {
 
     /**
      * タブナビゲーション機能を初期化する
-     * @param {Array<string>} tabIds - タブのID配列（順序が重要）
      * @param {Object} options - オプション設定
      */
-    initialize(tabIds, options = {}) {
-        if (!tabIds || !Array.isArray(tabIds) || tabIds.length === 0) {
-            console.error('タブIDの配列が正しく指定されていません');
-            return;
-        }
-
+    initialize(options = {}) {
         // コールバック設定をマージ
         if (options.callbacks) {
             this.config.callbacks = {...this.config.callbacks, ...options.callbacks};
@@ -55,8 +49,25 @@ class TabNavigationUtil {
         // その他のオプションをマージ
         Object.assign(this.config, options);
 
-        // タブID配列を保存
-        this.config.tabIds = tabIds;
+        // タブペインからタブIDを自動的に取得
+        const tabPaneSelector = this.config.tabContentSelector.tabPane;
+        const tabPanes = document.querySelectorAll(tabPaneSelector);
+
+        if (tabPanes.length === 0) {
+            console.error('タブペインが見つかりません。セレクタを確認してください：', tabPaneSelector);
+            return;
+        }
+
+        // タブID配列を作成
+        this.config.tabIds = Array.from(tabPanes).map((pane, index) => {
+            // IDがある場合はそれを使用、なければ自動生成
+            return pane.id || `auto-tab-${index}`;
+        });
+
+        if (this.config.tabIds.length === 0) {
+            console.error('タブIDを取得できませんでした');
+            return;
+        }
 
         // イベントリスナーを登録
         this.attachEventListeners();
@@ -238,9 +249,20 @@ class TabNavigationUtil {
         const tabPane = element.closest(tabPaneSelector);
         if (!tabPane) return null;
 
-        // タブIDかどうか確認
-        const tabId = tabPane.id;
-        return this.config.tabIds.includes(tabId) ? tabId : null;
+        // タブIDを取得（IDがある場合）
+        if (tabPane.id && this.config.tabIds.includes(tabPane.id)) {
+            return tabPane.id;
+        }
+
+        // IDがない場合、タブペインの位置でタブを特定
+        const allTabPanes = document.querySelectorAll(tabPaneSelector);
+        const tabIndex = Array.from(allTabPanes).indexOf(tabPane);
+
+        if (tabIndex !== -1 && tabIndex < this.config.tabIds.length) {
+            return this.config.tabIds[tabIndex];
+        }
+
+        return null;
     }
 
     /**

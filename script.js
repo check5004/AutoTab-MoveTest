@@ -14,11 +14,10 @@ $(document).ready(function() {
      * タブナビゲーション機能の初期化
      * 注意: CommonModule.jsが先に読み込まれていることを前提にしています
      */
-    const tabIds = ['tab1', 'tab2', 'tab3'];
     const tabNav = new TabNavigationUtil();
 
     // コールバック関数を使ってタブ切り替えを実装
-    tabNav.initialize(tabIds, {
+    tabNav.initialize({
         debug: true, // デバッグ出力を有効化
         // 入力フィールドのセレクタを設定
         inputSelector: '.tab-input:not(:disabled)',
